@@ -119,8 +119,8 @@ input.onLogoEvent(TouchButtonEvent.Pressed, function () {
     }
 })
 let Dispatched = false
-let Occupancy: number[] = []
 let SettingNumber = 0
+let Occupancy: number[] = []
 let Address_Space = 0
 let Gateway = 0
 let Status = 0
@@ -144,4 +144,9 @@ if (flashstorage.getOrDefault("Field", "NotSet") != "NotSet") {
         . . # . .
         # . # . #
         `)
+    radio.setGroup(Gateway)
+    Occupancy = []
+    for (let index = 0; index < Address_Space - 1; index++) {
+        Occupancy.push(0)
+    }
 }
