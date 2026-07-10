@@ -73,28 +73,27 @@ input.onButtonPressed(Button.B, function () {
 })
 radio.onReceivedValue(function (name, value) {
     serial.writeValue(name, value)
-    basic.showIcon(IconNames.Heart)
     if (name == "CarAwait") {
-        basic.showIcon(IconNames.Duck)
         Dispatched = false
         for (let Occupied of Occupancy) {
-            if (Occupied == 0) {
-                basic.showIcon(IconNames.Giraffe)
-                radio.sendValue("CarDispatch", Occupancy.indexOf(Occupied))
+            if (Occupied == 0 && !(LastDispatch == value)) {
+                LastDispatch = value
+                serial.writeLine("Dispatching Car")
+                radio.sendValue("CarDisp", Occupancy.indexOf(Occupied))
                 Occupancy[Occupancy.indexOf(Occupied)] = 1
                 Dispatched = true
                 break;
             }
         }
         if (!(Dispatched)) {
-            basic.showIcon(IconNames.Ghost)
-            radio.sendValue("GatewayFull", value)
+            serial.writeLine("Full")
+            radio.sendValue("GateFull", value)
         }
-    } else if (name == "ControllerAwait") {
+    } else if (name == "ContWait") {
         Dispatched = false
         for (let Occupied of Occupancy) {
             if (Occupied == 1) {
-                radio.sendValue("ControllerDispatch", Occupancy.indexOf(Occupied))
+                radio.sendValue("ContDisp", Occupancy.indexOf(Occupied))
                 Occupancy[Occupancy.indexOf(Occupied)] = 2
                 Dispatched = true
                 break;
@@ -103,14 +102,14 @@ radio.onReceivedValue(function (name, value) {
         if (!(Dispatched)) {
             radio.sendValue("NoCars", value)
         }
-    } else if (name == "ControllerDisconnect") {
+    } else if (name == "ContDisc") {
         Occupancy[value] = 1
     } else if (name == "NoCar") {
         Occupancy[value] = 0
         Dispatched = false
         for (let Occupied of Occupancy) {
             if (Occupied == 1) {
-                radio.sendValue("ControllerDispatch", Occupancy.indexOf(Occupied))
+                radio.sendValue("ContDisp", Occupancy.indexOf(Occupied))
                 Occupancy[Occupancy.indexOf(Occupied)] = 2
                 Dispatched = true
                 break;
@@ -119,26 +118,26 @@ radio.onReceivedValue(function (name, value) {
         if (!(Dispatched)) {
             radio.sendValue("NoCars", value)
         }
-    } else if (name == "DoubleCar") {
+    } else if (name == "DblCar") {
         Occupancy[value] = 1
         Dispatched = false
         for (let Occupied of Occupancy) {
             if (Occupied == 0) {
-                radio.sendValue("CarDispatch", Occupancy.indexOf(Occupied))
+                radio.sendValue("CarDisp", Occupancy.indexOf(Occupied))
                 Occupancy[Occupancy.indexOf(Occupied)] = 1
                 Dispatched = true
                 break;
             }
         }
         if (!(Dispatched)) {
-            radio.sendValue("GatewayFull", value)
+            radio.sendValue("GateFull", value)
         }
-    } else if (name == "DoubleController") {
+    } else if (name == "DblCont") {
         Occupancy[value] = 2
         Dispatched = false
         for (let Occupied of Occupancy) {
             if (Occupied == 1) {
-                radio.sendValue("ControllerDispatch", Occupancy.indexOf(Occupied))
+                radio.sendValue("ContDisp", Occupancy.indexOf(Occupied))
                 Occupancy[Occupancy.indexOf(Occupied)] = 2
                 Dispatched = true
                 break;
@@ -160,6 +159,7 @@ input.onLogoEvent(TouchButtonEvent.Pressed, function () {
         basic.showNumber(SettingNumber)
     }
 })
+let LastDispatch = 0
 let Dispatched = false
 let SettingNumber = 0
 let Occupancy: number[] = []
